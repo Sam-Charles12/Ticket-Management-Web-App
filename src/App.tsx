@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './components/auth/AuthContext';
 import { TicketProvider } from './components/tickets/TicketContext';
 import { Header } from './components/layout/Header';
@@ -11,6 +11,7 @@ import { TicketsPage } from './components/pages/TicketsPage';
 import { TicketDetailPage } from './components/pages/TicketDetailPage';
 import { TicketFormPage } from './components/pages/TicketFormPage';
 import { Toaster } from './components/ui/sonner';
+import { toast } from 'sonner';
 
 type PageType = 
   | 'landing'
@@ -31,6 +32,11 @@ const AppContent: React.FC = () => {
   const [navigation, setNavigation] = useState<NavigationState>({
     page: 'landing',
   });
+  const wasAuthenticated = useRef(isAuthenticated);
+
+  useEffect(() => {
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated]);
 
   // Redirect to dashboard if authenticated and on auth pages
   useEffect(() => {
@@ -43,7 +49,12 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const protectedPages: PageType[] = ['dashboard', 'tickets', 'ticket-detail', 'ticket-form'];
     if (!isAuthenticated && protectedPages.includes(navigation.page)) {
-      setNavigation({ page: 'landing' });
+      if (wasAuthenticated.current) {
+        toast.error('Your session has expired — please log in again.');
+      } else {
+        toast.error('Please log in to access that page.');
+      }
+      setNavigation({ page: 'login' });
     }
   }, [isAuthenticated, navigation.page]);
 

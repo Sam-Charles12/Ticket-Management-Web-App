@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { useTickets, Ticket } from '../tickets/TicketContext';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Card, CardContent } from '../ui/card';
-import { Badge } from '../ui/badge';
+import React, { useMemo, useState } from "react";
+import { useTickets, TicketStatus } from "../tickets/TicketContext";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from "../ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,9 +20,19 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { Plus, Search, Filter, Eye, Edit, Trash2, Calendar, User } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+} from "../ui/alert-dialog";
+import {
+  Plus,
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
+  Calendar,
+  User,
+} from "lucide-react";
+import { toast } from "sonner";
+import { notifyError } from "../../lib/errorHandling";
 
 interface TicketsPageProps {
   onNavigate: (page: string, ticketId?: string) => void;
@@ -30,51 +40,71 @@ interface TicketsPageProps {
 
 export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
   const { tickets, deleteTicket } = useTickets();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | TicketStatus>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [ticketToDelete, setTicketToDelete] = useState<string | null>(null);
 
-  const getStatusColor = (status: string) => {
+  const STATUS_LABELS: Record<TicketStatus, string> = {
+    open: "Open",
+    in_progress: "In Progress",
+    closed: "Closed",
+  };
+
+  const getStatusColor = (status: TicketStatus) => {
     switch (status) {
-      case 'open':
-        return 'bg-blue-100 text-blue-700';
-      case 'in-progress':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'resolved':
-        return 'bg-green-100 text-green-700';
-      case 'closed':
-        return 'bg-gray-100 text-gray-700';
+      case "open":
+        return "bg-blue-100 text-blue-700";
+      case "in_progress":
+        return "bg-yellow-100 text-yellow-700";
+      case "closed":
+        return "bg-gray-100 text-gray-700";
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'low':
-        return 'border-green-500 text-green-700';
-      case 'medium':
-        return 'border-yellow-500 text-yellow-700';
-      case 'high':
-        return 'border-orange-500 text-orange-700';
-      case 'critical':
-        return 'border-red-500 text-red-700';
+      case "low":
+        return "border-green-500 text-green-700";
+      case "medium":
+        return "border-yellow-500 text-yellow-700";
+      case "high":
+        return "border-orange-500 text-orange-700";
+      case "critical":
+        return "border-red-500 text-red-700";
       default:
-        return 'border-gray-500 text-gray-700';
+        return "border-gray-500 text-gray-700";
     }
   };
 
-  const filteredTickets = tickets.filter((ticket) => {
-    const matchesSearch =
-      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
-    const matchesPriority = priorityFilter === 'all' || ticket.priority === priorityFilter;
-    
-    return matchesSearch && matchesStatus && matchesPriority;
-  });
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const filteredTickets = useMemo(() => {
+    try {
+      const normalizedQuery = searchQuery.toLowerCase();
+      return tickets.filter((ticket) => {
+        const matchesSearch =
+          ticket.title.toLowerCase().includes(normalizedQuery) ||
+          ticket.description.toLowerCase().includes(normalizedQuery);
+        const matchesStatus =
+          statusFilter === "all" || ticket.status === statusFilter;
+        const matchesPriority =
+          priorityFilter === "all" || ticket.priority === priorityFilter;
+
+        return matchesSearch && matchesStatus && matchesPriority;
+      });
+    } catch (error) {
+      const message = notifyError(
+        error,
+        "Failed to load tickets. Please retry."
+      );
+      setLoadError(message);
+      return [];
+    }
+  }, [tickets, searchQuery, statusFilter, priorityFilter]);
 
   const handleDeleteClick = (id: string) => {
     setTicketToDelete(id);
@@ -85,13 +115,11 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
     if (ticketToDelete) {
       try {
         deleteTicket(ticketToDelete);
-        toast.success('Ticket deleted successfully', {
-          description: 'The ticket has been removed from the system.',
+        toast.success("Ticket deleted successfully", {
+          description: "The ticket has been removed from the system.",
         });
       } catch (error) {
-        toast.error('Failed to delete ticket', {
-          description: 'Please try again later.',
-        });
+        notifyError(error, "Failed to delete ticket. Please retry.");
       }
       setDeleteDialogOpen(false);
       setTicketToDelete(null);
@@ -108,7 +136,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
               Manage and track all your support tickets
             </p>
           </div>
-          <Button onClick={() => onNavigate('ticket-form')} className="gap-2">
+          <Button onClick={() => onNavigate("ticket-form")} className="gap-2">
             <Plus className="h-4 w-4" />
             New Ticket
           </Button>
@@ -126,7 +154,12 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={(value: "all" | TicketStatus) =>
+              setStatusFilter(value)
+            }
+          >
             <SelectTrigger>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4" />
@@ -136,8 +169,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="open">Open</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="resolved">Resolved</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
               <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
@@ -161,26 +193,40 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
 
         {/* Results count */}
         <div className="mb-4 text-sm text-gray-600">
-          Showing {filteredTickets.length} of {tickets.length} tickets
+          {loadError ? (
+            <span className="text-red-600">{loadError}</span>
+          ) : (
+            <>
+              Showing {filteredTickets.length} of {tickets.length} tickets
+            </>
+          )}
         </div>
 
         {/* Tickets Grid */}
         {filteredTickets.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredTickets.map((ticket) => (
-              <Card key={ticket.id} className="rounded-2xl shadow-lg transition-all hover:shadow-xl">
+              <Card
+                key={ticket.id}
+                className="rounded-2xl shadow-lg transition-all hover:shadow-xl"
+              >
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-start justify-between gap-2">
                     <h3 className="line-clamp-2">{ticket.title}</h3>
                     <Badge className={getStatusColor(ticket.status)}>
-                      {ticket.status}
+                      {STATUS_LABELS[ticket.status]}
                     </Badge>
                   </div>
-                  
-                  <p className="mb-4 line-clamp-2 text-gray-600">{ticket.description}</p>
-                  
+
+                  <p className="mb-4 line-clamp-2 text-gray-600">
+                    {ticket.description}
+                  </p>
+
                   <div className="mb-4 flex flex-wrap gap-2">
-                    <Badge variant="outline" className={getPriorityColor(ticket.priority)}>
+                    <Badge
+                      variant="outline"
+                      className={getPriorityColor(ticket.priority)}
+                    >
                       {ticket.priority}
                     </Badge>
                   </div>
@@ -192,7 +238,9 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        {new Date(ticket.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
 
@@ -200,7 +248,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => onNavigate('ticket-detail', ticket.id)}
+                      onClick={() => onNavigate("ticket-detail", ticket.id)}
                       className="flex-1 gap-1"
                     >
                       <Eye className="h-4 w-4" />
@@ -209,7 +257,7 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => onNavigate('ticket-form', ticket.id)}
+                      onClick={() => onNavigate("ticket-form", ticket.id)}
                       className="gap-1"
                     >
                       <Edit className="h-4 w-4" />
@@ -236,11 +284,13 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
             <p className="mb-6 text-gray-600">
               Try adjusting your search or filter criteria
             </p>
-            <Button onClick={() => {
-              setSearchQuery('');
-              setStatusFilter('all');
-              setPriorityFilter('all');
-            }}>
+            <Button
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+                setPriorityFilter("all");
+              }}
+            >
               Clear Filters
             </Button>
           </div>
@@ -252,8 +302,8 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the ticket
-                and remove it from our servers.
+                This action cannot be undone. This will permanently delete the
+                ticket and remove it from our servers.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

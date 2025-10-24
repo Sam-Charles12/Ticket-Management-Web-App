@@ -1,17 +1,17 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { useTickets } from '../tickets/TicketContext';
-import { useAuth } from '../auth/AuthContext';
-import { 
-  Ticket, 
-  TrendingUp, 
-  Clock, 
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { useTickets, TicketStatus } from "../tickets/TicketContext";
+import { useAuth } from "../auth/AuthContext";
+import {
+  Ticket,
+  TrendingUp,
+  Clock,
   CheckCircle2,
   AlertCircle,
-  ArrowRight
-} from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+  ArrowRight,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
 interface DashboardProps {
   onNavigate: (page: string, ticketId?: string) => void;
@@ -23,41 +23,45 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   const stats = {
     total: tickets.length,
-    open: tickets.filter(t => t.status === 'open').length,
-    inProgress: tickets.filter(t => t.status === 'in-progress').length,
-    resolved: tickets.filter(t => t.status === 'resolved').length,
-    critical: tickets.filter(t => t.priority === 'critical').length,
+    open: tickets.filter((t) => t.status === "open").length,
+    inProgress: tickets.filter((t) => t.status === "in_progress").length,
+    closed: tickets.filter((t) => t.status === "closed").length,
+    critical: tickets.filter((t) => t.priority === "critical").length,
   };
 
   const recentTickets = tickets.slice(0, 5);
 
-  const getStatusColor = (status: string) => {
+  const STATUS_LABELS: Record<TicketStatus, string> = {
+    open: "Open",
+    in_progress: "In Progress",
+    closed: "Closed",
+  };
+
+  const getStatusColor = (status: TicketStatus) => {
     switch (status) {
-      case 'open':
-        return 'bg-blue-100 text-blue-700';
-      case 'in-progress':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'resolved':
-        return 'bg-green-100 text-green-700';
-      case 'closed':
-        return 'bg-gray-100 text-gray-700';
+      case "open":
+        return "bg-blue-100 text-blue-700";
+      case "in_progress":
+        return "bg-yellow-100 text-yellow-700";
+      case "closed":
+        return "bg-gray-100 text-gray-700";
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical':
-        return 'bg-red-100 text-red-700';
-      case 'high':
-        return 'bg-orange-100 text-orange-700';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-700';
-      case 'low':
-        return 'bg-green-100 text-green-700';
+      case "critical":
+        return "bg-red-100 text-red-700";
+      case "high":
+        return "bg-orange-100 text-orange-700";
+      case "medium":
+        return "bg-yellow-100 text-yellow-700";
+      case "low":
+        return "bg-green-100 text-green-700";
       default:
-        return 'bg-gray-100 text-gray-700';
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -67,7 +71,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <h1 className="mb-2">Welcome back, {user?.name}! 👋</h1>
-            <p className="text-gray-600">Here's what's happening with your tickets today.</p>
+            <p className="text-gray-600">
+              Here's what's happening with your tickets today.
+            </p>
           </div>
         </div>
 
@@ -108,12 +114,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
           <Card className="rounded-2xl shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm">Resolved</CardTitle>
+              <CardTitle className="text-sm">Closed</CardTitle>
               <CheckCircle2 className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl">{stats.resolved}</div>
-              <p className="text-xs text-gray-500 mt-1">This month</p>
+              <div className="text-2xl">{stats.closed}</div>
+              <p className="text-xs text-gray-500 mt-1">Completed items</p>
             </CardContent>
           </Card>
         </div>
@@ -126,7 +132,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onNavigate('tickets')}
+                onClick={() => onNavigate("tickets")}
                 className="gap-1"
               >
                 View All
@@ -139,7 +145,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div
                     key={ticket.id}
                     className="flex items-start justify-between gap-4 rounded-lg border p-4 transition-colors hover:bg-gray-50 cursor-pointer"
-                    onClick={() => onNavigate('ticket-detail', ticket.id)}
+                    onClick={() => onNavigate("ticket-detail", ticket.id)}
                   >
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
@@ -149,10 +155,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         {ticket.description}
                       </p>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className={getStatusColor(ticket.status)}>
-                          {ticket.status.replace('-', ' ')}
+                        <Badge
+                          variant="secondary"
+                          className={getStatusColor(ticket.status)}
+                        >
+                          {STATUS_LABELS[ticket.status]}
                         </Badge>
-                        <Badge variant="secondary" className={getPriorityColor(ticket.priority)}>
+                        <Badge
+                          variant="secondary"
+                          className={getPriorityColor(ticket.priority)}
+                        >
                           {ticket.priority}
                         </Badge>
                       </div>
@@ -168,8 +180,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <Ticket className="mb-4 h-12 w-12 text-gray-300" />
                     <h3 className="mb-2">No tickets yet</h3>
-                    <p className="mb-4 text-gray-600">Create your first ticket to get started</p>
-                    <Button onClick={() => onNavigate('ticket-form')}>
+                    <p className="mb-4 text-gray-600">
+                      Create your first ticket to get started
+                    </p>
+                    <Button onClick={() => onNavigate("ticket-form")}>
                       Create Ticket
                     </Button>
                   </div>
@@ -187,7 +201,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <CardContent className="space-y-2">
                 <Button
                   className="w-full justify-start gap-2"
-                  onClick={() => onNavigate('ticket-form')}
+                  onClick={() => onNavigate("ticket-form")}
                 >
                   <Ticket className="h-4 w-4" />
                   Create New Ticket
@@ -195,7 +209,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"
-                  onClick={() => onNavigate('tickets')}
+                  onClick={() => onNavigate("tickets")}
                 >
                   <TrendingUp className="h-4 w-4" />
                   View All Tickets
@@ -213,12 +227,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-red-700">
-                    You have {stats.critical} critical {stats.critical === 1 ? 'ticket' : 'tickets'} that {stats.critical === 1 ? 'requires' : 'require'} immediate attention.
+                    You have {stats.critical} critical{" "}
+                    {stats.critical === 1 ? "ticket" : "tickets"} that{" "}
+                    {stats.critical === 1 ? "requires" : "require"} immediate
+                    attention.
                   </p>
                   <Button
                     variant="destructive"
                     className="mt-4 w-full"
-                    onClick={() => onNavigate('tickets')}
+                    onClick={() => onNavigate("tickets")}
                   >
                     View Critical Tickets
                   </Button>
@@ -240,8 +257,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <span className="text-yellow-600">{stats.inProgress}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Resolved</span>
-                  <span className="text-green-600">{stats.resolved}</span>
+                  <span className="text-sm text-gray-600">Closed</span>
+                  <span className="text-green-600">{stats.closed}</span>
                 </div>
               </CardContent>
             </Card>
