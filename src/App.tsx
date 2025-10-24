@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { AuthProvider, useAuth } from './components/auth/AuthContext';
-import { TicketProvider } from './components/tickets/TicketContext';
-import { Header } from './components/layout/Header';
-import { Footer } from './components/layout/Footer';
-import { LandingPage } from './components/pages/LandingPage';
-import { LoginPage } from './components/pages/LoginPage';
-import { RegisterPage } from './components/pages/RegisterPage';
-import { Dashboard } from './components/pages/Dashboard';
-import { TicketsPage } from './components/pages/TicketsPage';
-import { TicketDetailPage } from './components/pages/TicketDetailPage';
-import { TicketFormPage } from './components/pages/TicketFormPage';
-import { Toaster } from './components/ui/sonner';
-import { toast } from 'sonner';
+import React, { useState, useEffect, useRef } from "react";
+import { AuthProvider, useAuth } from "./components/auth/AuthContext";
+import { TicketProvider } from "./components/tickets/TicketContext";
+import { Header } from "./components/layout/Header";
+import { Footer } from "./components/layout/Footer";
+import { LandingPage } from "./components/pages/LandingPage";
+import { LoginPage } from "./components/pages/LoginPage";
+import { RegisterPage } from "./components/pages/RegisterPage";
+import { Dashboard } from "./components/pages/Dashboard";
+import { TicketsPage } from "./components/pages/TicketsPage";
+import { TicketDetailPage } from "./components/pages/TicketDetailPage";
+import { TicketFormPage } from "./components/pages/TicketFormPage";
+import { Toaster } from "./components/ui/sonner";
+import { toast } from "sonner";
 
-type PageType = 
-  | 'landing'
-  | 'login'
-  | 'register'
-  | 'dashboard'
-  | 'tickets'
-  | 'ticket-detail'
-  | 'ticket-form';
+type PageType =
+  | "landing"
+  | "login"
+  | "register"
+  | "dashboard"
+  | "tickets"
+  | "ticket-detail"
+  | "ticket-form";
 
 interface NavigationState {
   page: PageType;
@@ -30,32 +30,40 @@ interface NavigationState {
 const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [navigation, setNavigation] = useState<NavigationState>({
-    page: 'landing',
+    page: "landing",
   });
   const wasAuthenticated = useRef(isAuthenticated);
 
-  useEffect(() => {
-    wasAuthenticated.current = isAuthenticated;
-  }, [isAuthenticated]);
-
   // Redirect to dashboard if authenticated and on auth pages
   useEffect(() => {
-    if (isAuthenticated && (navigation.page === 'landing' || navigation.page === 'login' || navigation.page === 'register')) {
-      setNavigation({ page: 'dashboard' });
+    if (
+      isAuthenticated &&
+      (navigation.page === "landing" ||
+        navigation.page === "login" ||
+        navigation.page === "register")
+    ) {
+      setNavigation({ page: "dashboard" });
     }
   }, [isAuthenticated]);
 
   // Redirect to login if not authenticated and trying to access protected pages
   useEffect(() => {
-    const protectedPages: PageType[] = ['dashboard', 'tickets', 'ticket-detail', 'ticket-form'];
+    const protectedPages: PageType[] = [
+      "dashboard",
+      "tickets",
+      "ticket-detail",
+      "ticket-form",
+    ];
     if (!isAuthenticated && protectedPages.includes(navigation.page)) {
-      if (wasAuthenticated.current) {
-        toast.error('Your session has expired — please log in again.');
+      const wasAuthBeforeChange = wasAuthenticated.current;
+      if (wasAuthBeforeChange) {
+        toast.error("Your session has expired — please log in again.");
       } else {
-        toast.error('Please log in to access that page.');
+        toast.error("Please log in to access that page.");
       }
-      setNavigation({ page: 'login' });
+      setNavigation({ page: "login" });
     }
+    wasAuthenticated.current = isAuthenticated;
   }, [isAuthenticated, navigation.page]);
 
   const handleNavigate = (page: string, ticketId?: string) => {
@@ -64,24 +72,32 @@ const AppContent: React.FC = () => {
 
   const renderPage = () => {
     switch (navigation.page) {
-      case 'landing':
+      case "landing":
         return <LandingPage onNavigate={handleNavigate} />;
-      case 'login':
+      case "login":
         return <LoginPage onNavigate={handleNavigate} />;
-      case 'register':
+      case "register":
         return <RegisterPage onNavigate={handleNavigate} />;
-      case 'dashboard':
+      case "dashboard":
         return <Dashboard onNavigate={handleNavigate} />;
-      case 'tickets':
+      case "tickets":
         return <TicketsPage onNavigate={handleNavigate} />;
-      case 'ticket-detail':
+      case "ticket-detail":
         return navigation.ticketId ? (
-          <TicketDetailPage ticketId={navigation.ticketId} onNavigate={handleNavigate} />
+          <TicketDetailPage
+            ticketId={navigation.ticketId}
+            onNavigate={handleNavigate}
+          />
         ) : (
           <TicketsPage onNavigate={handleNavigate} />
         );
-      case 'ticket-form':
-        return <TicketFormPage ticketId={navigation.ticketId} onNavigate={handleNavigate} />;
+      case "ticket-form":
+        return (
+          <TicketFormPage
+            ticketId={navigation.ticketId}
+            onNavigate={handleNavigate}
+          />
+        );
       default:
         return <LandingPage onNavigate={handleNavigate} />;
     }
@@ -90,9 +106,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header onNavigate={handleNavigate} currentPage={navigation.page} />
-      <main className="flex-1">
-        {renderPage()}
-      </main>
+      <main className="flex-1">{renderPage()}</main>
       <Footer />
       <Toaster position="top-right" />
     </div>
