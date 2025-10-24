@@ -1,6 +1,7 @@
-import { Ticket, Mail, Github, Linkedin } from 'lucide-react';
+import type { FC } from "react";
+import { Ticket, Mail, Github, Linkedin } from "lucide-react";
 
-export const Footer: React.FC = () => {
+export const Footer: FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -15,7 +16,8 @@ export const Footer: React.FC = () => {
               <span className="text-xl">TicketFlow</span>
             </div>
             <p className="text-sm text-gray-600">
-              The modern way to manage support tickets and deliver exceptional customer service.
+              The modern way to manage support tickets and deliver exceptional
+              customer service.
             </p>
           </div>
 
@@ -23,16 +25,24 @@ export const Footer: React.FC = () => {
             <h4 className="mb-4">Product</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Features</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Features
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Pricing</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Pricing
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">FAQ</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  FAQ
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Documentation</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Documentation
+                </a>
               </li>
             </ul>
           </div>
@@ -41,16 +51,24 @@ export const Footer: React.FC = () => {
             <h4 className="mb-4">Company</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">About Us</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  About Us
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Careers</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Careers
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Blog</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Blog
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Contact</a>
+                <a href="#" className="text-gray-600 hover:text-blue-600">
+                  Contact
+                </a>
               </li>
             </ul>
           </div>
@@ -86,9 +104,15 @@ export const Footer: React.FC = () => {
               © {currentYear} TicketFlow. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm">
-              <a href="#" className="text-gray-600 hover:text-blue-600">Privacy Policy</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600">Terms of Service</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600">Cookie Policy</a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                Privacy Policy
+              </a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                Terms of Service
+              </a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                Cookie Policy
+              </a>
             </div>
           </div>
         </div>

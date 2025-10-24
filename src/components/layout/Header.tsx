@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '../ui/button';
-import { useAuth } from '../auth/AuthContext';
-import { Ticket, LogOut, LayoutDashboard, Plus } from 'lucide-react';
+import React from "react";
+import { Button } from "../ui/button";
+import { useAuth } from "../auth/AuthContext";
+import { Ticket, LogOut, LayoutDashboard, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,9 +9,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '../ui/avatar';
-import { toast } from 'sonner';
+} from "../ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { toast } from "sonner";
 
 interface HeaderProps {
   onNavigate: (page: string) => void;
@@ -23,17 +23,19 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully', {
-      description: 'See you next time!',
+    toast.success("Logged out successfully", {
+      description: "See you next time!",
     });
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => onNavigate(isAuthenticated ? 'dashboard' : 'landing')}
+            onClick={() =>
+              onNavigate(isAuthenticated ? "dashboard" : "landing")
+            }
             className="flex items-center gap-2"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
@@ -45,16 +47,16 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           {isAuthenticated && (
             <nav className="hidden md:flex items-center gap-1">
               <Button
-                variant={currentPage === 'dashboard' ? 'secondary' : 'ghost'}
-                onClick={() => onNavigate('dashboard')}
+                variant={currentPage === "dashboard" ? "secondary" : "ghost"}
+                onClick={() => onNavigate("dashboard")}
                 className="gap-2"
               >
                 <LayoutDashboard className="h-4 w-4" />
                 Dashboard
               </Button>
               <Button
-                variant={currentPage === 'tickets' ? 'secondary' : 'ghost'}
-                onClick={() => onNavigate('tickets')}
+                variant={currentPage === "tickets" ? "secondary" : "ghost"}
+                onClick={() => onNavigate("tickets")}
                 className="gap-2"
               >
                 <Ticket className="h-4 w-4" />
@@ -68,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           {isAuthenticated ? (
             <>
               <Button
-                onClick={() => onNavigate('ticket-form')}
+                onClick={() => onNavigate("ticket-form")}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -77,7 +79,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full"
+                  >
                     <Avatar className="h-9 w-9">
                       <AvatarFallback className="bg-blue-600 text-white">
                         {user?.name.substring(0, 2).toUpperCase()}
@@ -93,7 +98,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="gap-2 text-red-600">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="gap-2 text-red-600"
+                  >
                     <LogOut className="h-4 w-4" />
                     Log out
                   </DropdownMenuItem>
@@ -102,12 +110,10 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={() => onNavigate('login')}>
+              <Button variant="ghost" onClick={() => onNavigate("login")}>
                 Log in
               </Button>
-              <Button onClick={() => onNavigate('register')}>
-                Sign up
-              </Button>
+              <Button onClick={() => onNavigate("register")}>Sign up</Button>
             </div>
           )}
         </div>
