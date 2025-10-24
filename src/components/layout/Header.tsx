@@ -26,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     toast.success("Logged out successfully", {
       description: "See you next time!",
     });
+    onNavigate("landing");
   };
 
   return (

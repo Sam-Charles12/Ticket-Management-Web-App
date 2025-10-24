@@ -55,9 +55,9 @@ export const TicketsPage: React.FC<TicketsPageProps> = ({ onNavigate }) => {
   const getStatusColor = (status: TicketStatus) => {
     switch (status) {
       case "open":
-        return "bg-blue-100 text-blue-700";
+        return "bg-green-100 text-green-700";
       case "in_progress":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-amber-100 text-amber-700";
       case "closed":
         return "bg-gray-100 text-gray-700";
       default:

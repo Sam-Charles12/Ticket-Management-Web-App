@@ -9,9 +9,11 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  LogOut,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { toast } from "sonner";
 
 interface DashboardProps {
   onNavigate: (page: string, ticketId?: string) => void;
@@ -19,7 +21,15 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { tickets } = useTickets();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully", {
+      description: "See you next time!",
+    });
+    onNavigate("landing");
+  };
 
   const stats = {
     total: tickets.length,
@@ -40,9 +50,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const getStatusColor = (status: TicketStatus) => {
     switch (status) {
       case "open":
-        return "bg-blue-100 text-blue-700";
+        return "bg-green-100 text-green-700";
       case "in_progress":
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-amber-100 text-amber-700";
       case "closed":
         return "bg-gray-100 text-gray-700";
       default:
@@ -75,6 +85,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               Here's what's happening with your tickets today.
             </p>
           </div>
+          <Button variant="outline" className="gap-2" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" />
+            Log out
+          </Button>
         </div>
 
         {/* Stats Grid */}
